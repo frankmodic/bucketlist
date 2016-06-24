@@ -5,7 +5,7 @@
 		<form ng-submit='adduser()'>
 			<div class="form-group">
 				<label for="user_name">Name:</label>
-				<input class="form-control" type="text" ng-model="new_user.name" placeholder="Insert user name...">
+				<input class="form-control" type="text" ng-model="new_user.name" placeholder="Insert user name..." required>
 			</div>
 			<p style="color: red;" ng-if="$scope.error = 'True'">{{error}}</p>
 			<button type="submit" class="btn btn-primary pull-right">Enter</button>
