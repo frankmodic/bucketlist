@@ -1,0 +1,15 @@
+<div class="container" style="padding-bottom: 75px;">
+	<div class="col-md-5" ng-controller="UsersController">
+		<h3>Welcome to Bucket Lists</h3>
+		<h5>Get started by entering your name!</h5><br>
+		<form ng-submit='adduser()'>
+			<div class="form-group">
+				<label for="user_name">Name:</label>
+				<input class="form-control" type="text" ng-model="new_user.name" placeholder="Insert user name...">
+			</div>
+			<p style="color: red;" ng-if="$scope.error = 'True'">{{error}}</p>
+			<button type="submit" class="btn btn-primary pull-right">Enter</button>
+		</form>
+	</div>
+</div>
+

@@ -1,0 +1,184 @@
+<html ng-app="bucketlist_app">
+<head>
+	<title>Bucket List</title>
+<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+	<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js'></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular-messages.js"></script>
+	<script>
+	// PUT ANGULAR CODE HERE
+		// Let's create our angular module
+
+	var bucketlist_app = angular.module('bucketlist_app', ['ngRoute', 'ngMessages']);
+
+	bucketlist_app.config(function ($routeProvider) {
+		$routeProvider
+			.when('/',{
+				templateUrl: '/login.html'
+			})
+			.when('/dashboard',{
+				templateUrl: '/dashboard.html'
+			})
+			.when('/:username', {
+				templateUrl: 'profile.html'
+			})
+
+			.otherwise({
+				redirectTo: '/'
+			});
+	});
+
+		bucketlist_app.factory('userFactory', function($http) {
+			var factory = {};
+			var users = [];
+			var user_names = [];
+
+			factory.show = function(callback) {
+				$http.get('/users').success(function(output) {
+					users = output;
+					callback(users);
+				})
+			}
+
+			factory.create = function(info, callback) {
+				$http.post('/users', info).success(function(data){
+						console.log('what is this', data)
+							if(data.error){
+								callback(data)
+							}
+							else{
+								users.push(data)
+								user_names.push(data.name)
+								console.log(users);
+								callback(users)
+							}
+				})
+			}
+
+			factory.showOne = function($routeParams, callback){
+			console.log('this is a param', $routeParams)
+			$http.get('/users/' + $routeParams.username).success(function(output){
+				console.log(output)
+				user = output;
+				callback(user);
+			})
+		}
+			return factory;
+		})
+
+		bucketlist_app.factory('listFactory', function($http){
+		var factory = {};
+		var lists = [];
+
+			factory.getLists = function(callback){
+				$http.get('/lists').success(function(output){
+					// console.log('this is output', output)
+					lists = output;
+					// console.log('this is lists- ', lists)
+					callback(lists);
+				});
+
+			}
+
+			factory.addToList = function(newList, callback){
+				$http.post('/lists', newList).success(function($http){
+					if($http.error){
+						console.log($http.error)
+						callback($http);
+					} else {
+					lists.push({$http});
+					callback($http);
+					}
+				})
+			}
+			return factory;
+		})
+
+		bucketlist_app.controller('UsersController', function($scope, userFactory, $location) {
+
+		userFactory.show(function(data) {
+		  $scope.users = data;
+		});
+
+			$scope.adduser = function(data) {
+				console.log('test1')
+				userFactory.create($scope.new_user, function(add_error){
+					if(add_error.error){
+						$location.url('/')
+						console.log(add_error.error);
+						$scope.error = add_error.error;
+						userFactory.show(function(data){
+							// $scope.error = ''
+							$scope.users = data;
+						})  
+					}
+					else{
+						userFactory.show(function(data){
+							console.log(data);
+							$scope.error = ''
+							$scope.users = data;
+							$scope.user_names = $scope.user_names;
+						})   
+						$scope.new_user = {};  //might not need
+						$location.url('/dashboard')
+					}
+				})
+			}
+	});
+
+	bucketlist_app.controller('listsController', function(listFactory, userFactory, $scope){
+			$scope.lists = [];
+			$scope.users = [];
+			$scope.newList = {};
+			$scope.user_names = [];
+
+			listFactory.getLists(function(data){
+				$scope.lists = data;
+			});
+
+			userFactory.show(function(data){
+				$scope.users = data;
+
+			});
+				
+
+
+			$scope.addToList = function(){
+				// $scope.new_order.created_at = new Date();
+				listFactory.addToList($scope.newList, function(data){
+					$scope.lists = data;
+					$scope.newList = {};
+					
+				});
+			}
+	})
+
+	bucketlist_app.controller('profileController', function($scope, $routeParams, userFactory){
+		$scope.user = [];
+		$scope.lists = [];
+
+		userFactory.showOne($routeParams, function(data){
+			console.log(data)
+			$scope.user = data;
+			console.log($scope.user._lists);
+			for(x = 0; x < $scope.user._lists.length; x++){
+
+				$scope.lists.push($scope.user._lists[x])
+				}
+
+			console.log($scope.lists);
+		})
+	})
+	</script>
+</head>
+<!-- everything in the body is going to use the friends controller (this gives us access to the friends controller $scope) -->
+<body>
+<div class="container" style="padding-bottom: 50px;">
+	<div style="padding-bottom: 50px;" ng-view=''>
+
+	</div>
+</div>
+</body>
+</html>

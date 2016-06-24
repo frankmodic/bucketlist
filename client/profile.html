@@ -1,0 +1,14 @@
+<div class="container" style="padding-top: 25px;">
+	<div class="col-md-12">	
+		<h5 style="display: inline;">Bucket List </h5> <a href="#/dashboard">Home</a> | <a href="#/">Logout</a><hr>
+	</div>
+</div>
+<div ng-controller='profileController'>
+	<h2>{{ user.name }}'s Bucket List</h2>
+	<div class="col-md-8" ng-repeat='list in lists'>
+		<ul ng-repeat="list in lists | orderBy: '-createdAt'">
+			<li><input type="checkbox" name="bucketlist_item" value="{{ list.name }} " /> {{ list.user }} | {{ list.name }} | {{ list.desc }} - {{ list.createdAt | date: 'MMMM dd, yyyy' }}</li>
+		</ul>
+	</div>	
+
+</div>
